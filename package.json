@@ -1,0 +1,17 @@
+{
+  "name": "va_bkd",
+  "version": "1.0.0",
+  "description": "integrated virtual account with bank ntb",
+  "main": "main.js",
+  "scripts": {
+    "dev": "nodemon main.js"
+  },
+  "author": "ali farhan",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^0.27.2",
+    "dotenv": "^16.0.1",
+    "express": "^4.18.1",
+    "nodemon": "^2.0.16"
+  }
+}
