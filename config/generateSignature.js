@@ -13,9 +13,7 @@ require('dotenv').config()
 // "tagihan":"9500000"}
 //body = JSON.stringify(body)
 
-const generateSignature = (body) => {
-
-
+const generateSignature = async (body) => {
 
   const hmac = createHmac('sha256', 'ntb@ts1');
   let signature = null
@@ -30,10 +28,12 @@ const generateSignature = (body) => {
   hmac.write(body);
   hmac.end();
 
-  return signature
+  return await signature
 
 }
 // out = generateSignature(body)
 // console.log(out)
 
-module.exports = generateSignature
+module.exports = {
+  generateSignature
+}

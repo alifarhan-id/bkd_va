@@ -2,8 +2,9 @@ const express = require('express')
 const axios = require('axios');
 
 const URI = require('../config/bankURI')
-const generateSignature = require('../config/generateSignature')
+const getSignature = require('../config/generateSignature')
 const getToken = require('../config/getToken')
+const sspd = require('../models/sspdVA') //insert va to sspd
 
 const doGetVA = async(req, res) => {
     const body = req.body
@@ -19,10 +20,11 @@ const doGetVA = async(req, res) => {
         "description": body.description,
         "tagihan": body.tagihan
     }
+    let sspdVA  = `2${body.va}` //convert varequest to sspd
 
     data = JSON.stringify(data)
     const token  = await getToken.getToken()  //get token
-    const signature = generateSignature(data) // get signature
+    const signature = await getSignature.generateSignature(data) // get signature
     const config = {
         method: 'post',
         url: URI.requestVA,
@@ -32,11 +34,23 @@ const doGetVA = async(req, res) => {
           'signature': `${signature}`, 
         },
         data : data
-      };
+    };
+     console.log(config)
+
       
       axios(config)
-      .then(function (response) {
+      .then( async function (response) {
         console.log(JSON.stringify(response.data));
+
+        if(response.data.rCode == "000"){
+          data = await sspd.doInsertVaToSspd
+          await sspd.doInsertVaToSspd(response.data.data.va, sspdVA)
+          res.status(200).json({
+            rCode: response.data.rCode,
+            message: response.data.message,
+            data:response.data.data
+          })
+        }
 
         if(response.data.rCode == "004"){
           res.status(400).json({
@@ -75,26 +89,17 @@ const doGetVA = async(req, res) => {
           })
         }
 
-        if(response.data.rCode == "000"){
-          res.status(200).json({
-            rCode: response.data.rCode,
-            message: response.data.message,
-            data:response.data.data
-          })
-        }
+       
 
 
       })
       .catch( (error) => {
+        console.log("ini error : ", error)
         res.status(500).json({
           rCode: 500,
           message: "Something error in server, Please try again later"
         })
       });
-
-    
-
-
 
 }
 

@@ -2,7 +2,7 @@ const express = require('express')
 const axios = require('axios');
 
 const URI = require('../config/bankURI')
-const generateSignature = require('../config/generateSignature')
+const getSignature = require('../config/generateSignature')
 const getToken = require('../config/getToken')
 
 
@@ -16,7 +16,7 @@ const doInqVA = async (req, res) => {
 
     data = JSON.stringify(data)
     const token  = await getToken.getToken()  //get token
-    const signature = generateSignature(data) // get signature
+    const signature = await getSignature.generateSignature(data) // get signature
 
     const config = {
         method: 'post',
@@ -31,6 +31,13 @@ const doInqVA = async (req, res) => {
 
     axios(config)
       .then(function (response) {
+        console.log(response.data)
+        if(response.data.rCode == "999"){
+          res.status(400).json({
+            rCode: response.data.rCode,
+            message: response.data.message,
+          })
+        }
         if(response.data.rCode == "001"){
           res.status(400).json({
             rCode: response.data.rCode,
@@ -61,11 +68,14 @@ const doInqVA = async (req, res) => {
         }
       })
       .catch( (error) => {
+        console.log(error)
         res.status(500).json({
           rCode: 500,
           message: "Something error in server, Please try again later"
         })
       });
+}
 
-
+module.exports = {
+  doInqVA
 }
