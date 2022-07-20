@@ -1,6 +1,5 @@
 const express = require('express')
-const path = require('path')
-const engine = require('consolidate');
+const swaggerDocs = require('./swagger')
 const cors = require('cors')
 const bodyParser = require('body-parser');
 const indexRoutes = require('./routes/indexRoutes')
@@ -21,9 +20,10 @@ app.get('/bkd/va/', (req, res) =>{
   res.render('index')
 })
 
-app.use('/bkd_payment/va/', indexRoutes)
+app.use('/payment/va/', indexRoutes)
 
 
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`)
+  swaggerDocs(app, port)
 })

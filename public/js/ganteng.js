@@ -3,7 +3,7 @@ $(document).ready(function(){
     $(".request-va").on('click', function(){
         sspd = $('#input-va').val()
         $.ajax({
-            url:"/bkd_payment/va/search_sspd",
+            url:"/payment/va/search_sspd",
             method:"POST",
             data:{sspd:sspd},
         }).done(function(res){
@@ -88,6 +88,7 @@ $(document).ready(function(){
     function requestVA(data){
         $(".result-va").show()
         let datetime_expired_va = moment().add(3, 'days').format('YYYY-MM-DD') 
+        console.log(data)
         jsonData = {
             va:data.no_sspd,
             id_mitra:"006",
@@ -101,18 +102,21 @@ $(document).ready(function(){
             tagihan: data.jumlah_setoran
         }
         $.ajax({
-
-            url:"/bkd_payment/va/getva",
+            url:"/payment/va/getva",
             method:"POST",
-            data:JSON.stringify(jsonData)
+            data:jsonData,
+            dataType:'json'
 
         }).done(function(res){
-
-            console.log(res)
-
+            if(res.rCode === "000"){
+              $('#vaResult').html(res.data.va)
+            }
         }).fail(function(e){
-
-            console.log(e)
+          Swal.fire({
+            icon: 'error',
+            title: 'another error',
+            text: 'cannot get response from bank',
+          })
             
         })
 

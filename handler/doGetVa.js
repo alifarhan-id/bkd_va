@@ -6,10 +6,16 @@ const getSignature = require('../config/generateSignature')
 const getToken = require('../config/getToken')
 const sspd = require('../models/sspdVA') //insert va to sspd
 
+async function writeVa(va){
+  let data = va.slice(1, 11)
+  return data
+}
+
 const doGetVA = async(req, res) => {
     const body = req.body
+    reqVA = await writeVa(body.va)
     let data = {
-        "va": body.va,
+        "va":reqVA,
         "id_mitra": body.id_mitra,
         "id_produk": body.id_produk,
         "name": body.name,
@@ -20,7 +26,8 @@ const doGetVA = async(req, res) => {
         "description": body.description,
         "tagihan": body.tagihan
     }
-    let sspdVA  = `2${body.va}` //convert varequest to sspd
+    console.log(`ini va ${reqVA}`)
+
 
     data = JSON.stringify(data)
     const token  = await getToken.getToken()  //get token
@@ -35,16 +42,13 @@ const doGetVA = async(req, res) => {
         },
         data : data
     };
-     console.log(config)
-
-      
-      axios(config)
+    axios(config)
       .then( async function (response) {
         console.log(JSON.stringify(response.data));
 
         if(response.data.rCode == "000"){
           data = await sspd.doInsertVaToSspd
-          await sspd.doInsertVaToSspd(response.data.data.va, sspdVA)
+          await sspd.doInsertVaToSspd(response.data.data.va,body.va)
           res.status(200).json({
             rCode: response.data.rCode,
             message: response.data.message,
